@@ -5,6 +5,8 @@ from iconsdk.builder.transaction_builder import (
     CallTransactionBuilder,
     MessageTransactionBuilder
 )
+from iconsdk.builder.call_builder import CallBuilder
+
 from telegram.ext import CommandHandler
 from pymongo import MongoClient
 from iconsdk.wallet.wallet import KeyWallet
@@ -28,7 +30,72 @@ dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
-icon_service = IconService(HTTPProvider("http://52.66.110.234:9000", 3))
+# icon_service = IconService(HTTPProvider("http://52.66.110.234:9000",3))
+icon_service = IconService(HTTPProvider("https://bicon.net.solidwallet.io/api/v3"))
+icon_irc2_address = "cx3f4c246971a87a7dc456f3e772fbbde52ec18de2"
+
+
+
+
+# calculate default step cost
+
+
+def get_default_step_cost(wallet_address: str):
+    governance_address = "cx0000000000000000000000000000000000000001"
+    _call = CallBuilder()\
+        .from_(wallet_address)\
+        .to(governance_address)\
+        .method("getStepCosts")\
+        .build()
+    _result = icon_service.call(_call)
+    default_step_cost = int(_result["default"], 0)
+    return default_step_cost
+# gets token name
+def get_token_name(wallet_address: str):
+    call = CallBuilder()\
+        .from_(wallet_address)\
+        .to(icon_irc2_address)\
+        .method("name")\
+        .build()
+    return icon_service.call(call)
+
+# Returns token symbol
+def get_token_symbol(wallet_address: str):
+    call = CallBuilder()\
+        .from_(wallet_address)\
+        .to(icon_irc2_address)\
+        .method("symbol")\
+        .build()
+    return icon_service.call(call)
+# Returns token symbol
+def get_token_balance(wallet_address: str):
+    params = {
+        "_owner": wallet_address
+    }
+    call = CallBuilder()\
+        .from_(wallet_address)\
+        .to(icon_irc2_address)\
+        .method("balanceOf")\
+        .params(params)\
+        .build()
+    print(icon_service.call(call))
+    return int(icon_service.call(call),0)
+
+
+def irc2_transfer(from_wallet, to_address: str, value: float):
+    params = {"_to": to_address, "_value": value}
+    call_transaction = CallTransactionBuilder()\
+        .from_(from_wallet.get_address())\
+        .to(icon_irc2_address) \
+        .step_limit(get_default_step_cost(from_wallet.get_address())*2)\
+        .nid(3) \
+        .nonce(4) \
+        .method("transfer")\
+        .params(params)\
+        .build()
+    signed_transaction = SignedTransaction(call_transaction, from_wallet)
+    tx_hash = icon_service.send_transaction(signed_transaction)
+    return tx_hash
 
 # mongodb setup
 client = MongoClient('localhost', 27017)
@@ -76,29 +143,50 @@ def tip(bot, update):
     elif receiver is None:
         bot.send_message(chat_id=update.message.chat_id,
                          text="Please ask @{0} to join our channel and create account".format(args[1][1:]))
+    
     else:
-        try:
-            amount = int(args[2])*(10**18)
-            print(amount)
-        except:
-            bot.send_message(chat_id=update.message.chat_id,
-                             text="Amount should be a sane number!!!!!")
-        PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
-        sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
-        balance = icon_service.get_balance(sender["address"])
-        amount = int(args[2])*(10**18)
-        if balance > amount:
-            transaction = TransactionBuilder().from_(sender_wallet.get_address()).to(receiver["address"]).value(amount).nid(0x3).nonce(50).build()
-            estimate_step = icon_service.estimate_step(transaction)
-            step_limit = estimate_step + 10000
-            signed_transaction = SignedTransaction(
-                transaction, sender_wallet, step_limit)
-            tx_hash = icon_service.send_transaction(signed_transaction)
-            bot.send_message(chat_id=update.message.chat_id,
-                                text="Transaction has been submitted with TX hash "+tx_hash)
+        if args[2].lower == "icx":  
+            try:
+                amount = int(args[3])*(10**18)
+            except:
+                bot.send_message(chat_id=update.message.chat_id,
+                                text="Amount should be a sane number!!!!!")
+            PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
+            sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
+            balance = icon_service.get_balance(sender["address"])
+            amount = int(args[3])*(10**18)
+            if balance > amount:
+                transaction = TransactionBuilder().from_(sender_wallet.get_address()).to(receiver["address"]).value(amount).nid(0x3).nonce(50).build()
+                estimate_step = icon_service.estimate_step(transaction)
+                step_limit = estimate_step + 10000
+                signed_transaction = SignedTransaction(
+                    transaction, sender_wallet, step_limit)
+                tx_hash = icon_service.send_transaction(signed_transaction)
+                bot.send_message(chat_id=update.message.chat_id,
+                                    text="Transaction has been submitted with TX hash "+tx_hash)
+            else:
+                bot.send_message(chat_id=update.message.chat_id,
+                                    text="Insufficient Balance")
+        elif args[2].lowe == "irc2":
+            try:
+                amount = int(args[3])*(10**18)
+            except:
+                bot.send_message(chat_id=update.message.chat_id,
+                                text="Amount should be a sane number!!!!!")
+            PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
+            sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
+            balance = get_token_balance(sender["address"])
+            amount = int(args[3])*(10**18)
+            if balance > amount:
+                tx_hash = irc2_transfer(sender_wallet, receiver["address"], amount)
+                bot.send_message(chat_id=update.message.chat_id,
+                                    text="Transaction has been submitted with TX hash "+tx_hash)
+            else:
+                bot.send_message(chat_id=update.message.chat_id,
+                                    text="Insufficient Balance")
         else:
             bot.send_message(chat_id=update.message.chat_id,
-                                text="Insufficient Balance")
+                                    text="Please follow The format to send\nICX: /tip @username ICX value\nIRC2: /tip @username IRC2 value")
 
 # TODO
 def balance(bot, update):
@@ -111,9 +199,10 @@ def balance(bot, update):
         bot.send_message(chat_id=update.message.chat_id,
                          text="Please create an account to start tipping people".format(args[1][1:]))
     else:
-        balance = round(icon_service.get_balance(sender["address"])*10**-18,3)
+        balance_icx = round(icon_service.get_balance(sender["address"])*10**-18,3)
+        balance_irc = round(get_token_balance(sender["address"])*10**-18,3)
         bot.send_message(chat_id=update.message.chat_id,
-                         text="Your Wallet Balance is "+str(balance)+"")
+                         text="Your Wallet Balance is\nICX: "+str(balance_icx)+"\nIRC2: "+str(balance_irc))
 
 # TODO
 def price(bot, update):
