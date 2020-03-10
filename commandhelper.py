@@ -14,7 +14,6 @@ def commands(bot, update):
         + "\n \n Parameters: \n <user> = target user to tip \n <token type> = icx or irc2 \n <amount> = amount of token to utilise  \n \n Tipping format: \n /tip <user> <toke type> <amount> ",
     )
 
-
 @run_async
 def airdrop(bot, update):
     user = update.message.from_user.username

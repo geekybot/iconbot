@@ -7,7 +7,7 @@ api_id = cfg.config["api_id"]
 api_hash = cfg.config["api_hash"]
 bot_token = cfg.config["bot_token"]
 loop = asyncio.new_event_loop()
-bot = TelegramClient('bot', api_id, api_hash,loop=loop).start(bot_token=bot_token)
+bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 group_username = 'bottesticon'
 client = MongoClient('localhost', 27017)
 db = client.icon_database
