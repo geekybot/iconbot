@@ -33,7 +33,7 @@ def airdrop(bot, update):
     print(token)
     print(user)
     # tx_hash_list, error_list, message =
-    asyncio.run(ica.airdrop(amount, sender, token, user))
+    ica.airdrop(amount, sender, token, user)
     bot.send_message(
         chat_id=update.message.chat_id,
         text="Airdrop Successful for: "
