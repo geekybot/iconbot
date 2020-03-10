@@ -1,7 +1,7 @@
-def config():
-    return {
-        "api_id": 1309274,
-        "api_hash": "5c8c019a271e0bc5c035cf26d16e5eb0",
-        "title": "pluttestbot",
-        "Shortname": "pltbot",
-    }
+config =  {
+    "api_id": 1357005,
+    "api_hash": "9c4180ae436e5c5ea387a0209c101c87",
+    "title": "pluttestbot",
+    "Shortname": "pltbot",
+    "bot_token" : "750046409:AAHrfTwy8dCz-PXF1RuTpubmOfwoFYEUkN0"
+}

@@ -5,12 +5,6 @@ import asyncio
 from telegram.ext.dispatcher import run_async
 
 
-api_id = 1309274
-api_hash = "5c8c019a271e0bc5c035cf26d16e5eb0"
-phone = "+919046384611"
-client = TelegramClient(phone, api_id, api_hash)
-client.connect()
-
 
 def commands(bot, update):
     user = update.message.from_user.username
