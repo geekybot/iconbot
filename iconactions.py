@@ -172,14 +172,23 @@ def get_keys(user):
         return None, None, "An error occurred"
 
 
-async def airdrop(amount, sender, token, user):
+def airdrop(bot, update, amount, sender, token, user):
     # try:
     PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
     sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
     # loop = asyncio.get_event_loop()
-    addresses = await md.list_account(user)
+    addresses = md.list_account(user)
+    print("==================printing addresses======================")
     print(addresses)
     user_amount = amount / len(addresses)
+    message = "Airdrop\n"
+    for x in addresses:
+        message = message + "\n"+ x["username"] + ": "+user_amount+"\n"
+    print(message)
+    bot.send_message(
+        chat_id=update.message.chat_id,
+        text= message
+    )
     tx_hash_list = []
     error_list = []
     if token is "icx":
@@ -230,3 +239,8 @@ async def airdrop(amount, sender, token, user):
             return None, None, "Insufficient balance"
     # except:
     #     return None, None, "Error Submitting Transactions"
+
+# def test():
+#     print(md.list_account('Johnblockchain'))
+    
+# test()

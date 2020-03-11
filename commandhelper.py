@@ -3,7 +3,7 @@ import iconactions as ica
 from telethon.sync import TelegramClient
 import asyncio
 from telegram.ext.dispatcher import run_async
-
+import threading
 
 
 def commands(bot, update):
@@ -14,13 +14,16 @@ def commands(bot, update):
         + "\n \n Parameters: \n <user> = target user to tip \n <token type> = icx or irc2 \n <amount> = amount of token to utilise  \n \n Tipping format: \n /tip <user> <toke type> <amount> ",
     )
 
-@run_async
+# @run_async
 def airdrop(bot, update):
     user = update.message.from_user.username
     message = update.message.text
     args = message.split(" ")
     print(args)
     sender = md.find_one({"telegramUserId": user})
+    addresses = md.list_account('Johnblockchain')
+    print("printing at commandhandler")
+    print(addresses)
     try:
         amount = int(args[1]) * (10 ** 18)
     except:
@@ -28,26 +31,31 @@ def airdrop(bot, update):
             chat_id=update.message.chat_id, text="Amount should be a sane number!!!!!",
         )
     token = args[2].lower()
-    print(amount)
-    print(sender)
-    print(token)
-    print(user)
+    # print(amount)
+    # print(sender)
+    # print(token)
+    # print(user)
     # tx_hash_list, error_list, message =
-    ica.airdrop(amount, sender, token, user)
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text="Airdrop Successful for: "
-        # + str(tx_hash_list)
-        + "\nFailed Tx: "
-        # + str(error_list)
-        + "\n"
-        # + message,
-    )
+    # task = loop.create_task(ica.airdrop(amount, sender, token, user))
+    # remaining_work_not_depends_on_foo()
+    # ica.airdrop(amount, sender, token, user)
+    # t = threading.Thread(target=ica.airdrop, args = (bot, update, amount,sender, token, user,))
+    # t.daemon = True
+    # t.start()
+    # bot.send_message(
+    #     chat_id=update.message.chat_id,
+    #     text="Airdrop Successful for: "
+    #     # + str(tx_hash_list)
+    #     + "\nFailed Tx: "
+    #     # + str(error_list)
+    #     + "\n"
+    #     # + message,
+    # )
     # except:
     #     bot.send_message(
     #         chat_id=update.message.chat_id, text="Encountered an  error!!!!!",
     #     )
-
+    # loop.run_until_complete(task)
 
 # get private keys
 # def get_keys(bot, update):
