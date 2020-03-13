@@ -21,9 +21,13 @@ def airdrop(bot, update):
     args = message.split(" ")
     print(args)
     sender = md.find_one({"telegramUserId": user})
-    addresses = md.list_account('Johnblockchain')
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    # addresses = md.list_account('Johnblockchain', loop)
+    
     print("printing at commandhandler")
-    print(addresses)
+    # print(addresses)
     try:
         amount = int(args[1]) * (10 ** 18)
     except:
@@ -31,6 +35,10 @@ def airdrop(bot, update):
             chat_id=update.message.chat_id, text="Amount should be a sane number!!!!!",
         )
     token = args[2].lower()
+    bot.send_message(
+            chat_id=update.message.chat_id, text="Airdrop in process!!!!!",
+        )
+    ica.airdrop(bot, update, amount, sender, token, user, loop)
     # print(amount)
     # print(sender)
     # print(token)

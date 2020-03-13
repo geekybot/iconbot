@@ -1,13 +1,14 @@
 from pymongo import MongoClient
 from telethon import TelegramClient, sync
 import asyncio
+import time
 
 import config as cfg
 api_id = cfg.config["api_id"]
 api_hash = cfg.config["api_hash"]
 bot_token = cfg.config["bot_token"]
-loop = asyncio.new_event_loop()
-bot = TelegramClient('bot_test', api_id, api_hash).start(bot_token=bot_token)
+# loop = asyncio.new_event_loop()
+
 group_username = 'bottesticon'
 client = MongoClient('localhost', 27017)
 db = client.icon_database
@@ -24,7 +25,11 @@ def insert_one(new_obj):
     return result
 
 
-def list_account(user):
+def list_account(user, loop):
+    ms = time.time()*1000.0
+    botid = "bot_test"+str(int(ms))
+    bot = TelegramClient(botid, api_id, api_hash, loop = loop).start(bot_token=bot_token)    
+    # with bot:
     participants = bot.get_participants(group_username)
     # print(participants)
     addresses = []

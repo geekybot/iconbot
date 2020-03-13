@@ -11,6 +11,8 @@ from iconsdk.wallet.wallet import KeyWallet
 from iconsdk.providers.http_provider import HTTPProvider
 from iconsdk.icon_service import IconService
 import mongodb as md
+import math  
+
 
 import asyncio
 
@@ -172,18 +174,20 @@ def get_keys(user):
         return None, None, "An error occurred"
 
 
-def airdrop(bot, update, amount, sender, token, user):
+def airdrop(bot, update, amount, sender, token, user, loop):
     # try:
     PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
     sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
     # loop = asyncio.get_event_loop()
-    addresses = md.list_account(user)
+    addresses = md.list_account(user, loop)
     print("==================printing addresses======================")
     print(addresses)
-    user_amount = amount / len(addresses)
+    user_amount = int(amount / len(addresses))
+    print(user_amount)
+    print(type(user_amount))
     message = "Airdrop\n"
     for x in addresses:
-        message = message + "\n"+ x["username"] + ": "+user_amount+"\n"
+        message = message + "\n"+ x["username"] + ": "+str(math.floor(user_amount* (10 ** -18)))+"\n"
     print(message)
     bot.send_message(
         chat_id=update.message.chat_id,
@@ -191,14 +195,16 @@ def airdrop(bot, update, amount, sender, token, user):
     )
     tx_hash_list = []
     error_list = []
-    if token is "icx":
+    print("=================")
+    print(token)
+    if token == "icx":
         balance = icon_service.get_balance(sender["address"])
         if balance >= amount:
             for x in addresses:
                 transaction = (
                     TransactionBuilder()
                     .from_(sender_wallet.get_address())
-                    .to(x)
+                    .to(x["address"])
                     .value(user_amount)
                     .nid(0x3)
                     .nonce(50)
@@ -221,13 +227,15 @@ def airdrop(bot, update, amount, sender, token, user):
             )
         else:
             return None, None, "Insufficient balance"
-    elif token is "irc2":
+    elif token == "irc2":
+        print("Airdropping irc2")
         balance = get_token_balance(sender["address"])
         if balance >= amount:
             for x in addresses:
                 try:
-                    tx_hash = irc2_transfer(sender_wallet, x, user_amount)
+                    tx_hash = irc2_transfer(sender_wallet, x["address"], user_amount)
                     tx_hash_list.append(tx_hash)
+                    print(tx_hash)
                 except:
                     error_list.append(x)
             return (
