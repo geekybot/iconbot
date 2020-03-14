@@ -9,7 +9,7 @@ api_hash = cfg.config["api_hash"]
 bot_token = cfg.config["bot_token"]
 # loop = asyncio.new_event_loop()
 
-group_username = 'bottesticon'
+
 client = MongoClient('localhost', 27017)
 db = client.icon_database
 collection = db.telegramusers
@@ -25,7 +25,8 @@ def insert_one(new_obj):
     return result
 
 
-def list_account(user, loop):
+def list_account(user, group_name, loop):
+    group_username = group_name
     ms = time.time()*1000.0
     botid = "bot_test"+str(int(ms))
     bot = TelegramClient(botid, api_id, api_hash, loop = loop).start(bot_token=bot_token)    

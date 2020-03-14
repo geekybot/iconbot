@@ -175,78 +175,85 @@ def get_keys(user):
 
 
 def airdrop(bot, update, amount, sender, token, user, loop):
-    # try:
-    PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
-    sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
-    # loop = asyncio.get_event_loop()
-    addresses = md.list_account(user, loop)
-    print("==================printing addresses======================")
-    print(addresses)
-    user_amount = int(amount / len(addresses))
-    print(user_amount)
-    print(type(user_amount))
-    message = "Airdrop\n"
-    for x in addresses:
-        message = message + "\n"+ x["username"] + ": "+str(math.floor(user_amount* (10 ** -18)))+"\n"
-    print(message)
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text= message
-    )
-    tx_hash_list = []
-    error_list = []
-    print("=================")
-    print(token)
-    if token == "icx":
-        balance = icon_service.get_balance(sender["address"])
-        if balance >= amount:
-            for x in addresses:
-                transaction = (
-                    TransactionBuilder()
-                    .from_(sender_wallet.get_address())
-                    .to(x["address"])
-                    .value(user_amount)
-                    .nid(0x3)
-                    .nonce(50)
-                    .build()
-                )
-                estimate_step = 180000
-                step_limit = estimate_step + 10000
-                signed_transaction = SignedTransaction(
-                    transaction, sender_wallet, step_limit
-                )
-                try:
-                    tx_hash = icon_service.send_transaction(signed_transaction)
-                    tx_hash_list.append(tx_hash)
-                except:
-                    error_list.append(x)
-            return (
-                tx_hash_list,
-                error_list,
-                "Transaction has been submitted with TX hash ",
-            )
-        else:
-            return None, None, "Insufficient balance"
-    elif token == "irc2":
-        print("Airdropping irc2")
-        balance = get_token_balance(sender["address"])
-        if balance >= amount:
-            for x in addresses:
-                try:
-                    tx_hash = irc2_transfer(sender_wallet, x["address"], user_amount)
-                    tx_hash_list.append(tx_hash)
-                    print(tx_hash)
-                except:
-                    error_list.append(x)
-            return (
-                tx_hash_list,
-                error_list,
-                "Transaction has been submitted with TX hash ",
-            )
-        else:
-            return None, None, "Insufficient balance"
-    # except:
-    #     return None, None, "Error Submitting Transactions"
+    print(update.message.chat.username)
+    try:
+        PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
+        sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
+        # loop = asyncio.get_event_loop()
+        addresses = md.list_account(user, update.message.chat.username, loop)
+        print("==================printing addresses======================")
+        print(addresses)
+        user_amount = int(amount / len(addresses))
+        print(user_amount)
+        print(type(user_amount))
+        message = "Airdrop\n"
+        for x in addresses:
+            message = message + "\n"+ x["username"] + ": "+str(math.floor(user_amount* (10 ** -18)))+"\n"
+        print(message)
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text= message
+        )
+        tx_hash_list = []
+        error_list = []
+        print("=================")
+        print(token)
+        if token == "icx":
+            try:
+                balance = icon_service.get_balance(sender["address"])
+                if balance >= amount:
+                    for x in addresses:
+                        transaction = (
+                            TransactionBuilder()
+                            .from_(sender_wallet.get_address())
+                            .to(x["address"])
+                            .value(user_amount)
+                            .nid(0x3)
+                            .nonce(50)
+                            .build()
+                        )
+                        estimate_step = 180000
+                        step_limit = estimate_step + 10000
+                        signed_transaction = SignedTransaction(
+                            transaction, sender_wallet, step_limit
+                        )
+                        try:
+                            tx_hash = icon_service.send_transaction(signed_transaction)
+                            tx_hash_list.append(tx_hash)
+                        except:
+                            error_list.append(x)
+                    return (
+                        tx_hash_list,
+                        error_list,
+                        "Transaction has been submitted with TX hash ",
+                    )
+                else:
+                    return None, None, "Insufficient balance"
+            except:
+                pass
+        elif token == "irc2":
+            print("Airdropping irc2")
+            try:
+                balance = get_token_balance(sender["address"])
+                if balance >= amount:
+                    for x in addresses:
+                        try:
+                            tx_hash = irc2_transfer(sender_wallet, x["address"], user_amount)
+                            tx_hash_list.append(tx_hash)
+                            print(tx_hash)
+                        except:
+                            error_list.append(x)
+                    return (
+                        tx_hash_list,
+                        error_list,
+                        "Transaction has been submitted with TX hash ",
+                    )
+                else:
+                    return None, None, "Insufficient balance"
+            except:
+                pass
+    except:
+        return None, None, "Error Submitting Transactions"
 
 # def test():
 #     print(md.list_account('Johnblockchain'))
