@@ -26,7 +26,14 @@ def airdrop(bot, update):
 
     # addresses = md.list_account('Johnblockchain', loop)
     
-    print("printing at commandhandler")
+    print("printing at commandhandler"+ update.message.chat.type)
+    if update.message.chat.type == "private":
+        print("in private")
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text= 'Airdrop only works in a group'
+        )
+        return
     # print(addresses)
     try:
         amount = int(args[1]) * (10 ** 18)

@@ -175,7 +175,7 @@ def get_keys(user):
 
 
 def airdrop(bot, update, amount, sender, token, user, loop):
-    print(update.message.chat.username)
+    
     try:
         PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
         sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
