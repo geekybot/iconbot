@@ -41,5 +41,8 @@ dispatcher.add_handler(help_handler)
 airdrop_handler = CommandHandler("airdrop", ch.airdrop)
 dispatcher.add_handler(airdrop_handler)
 
+export_handler = CommandHandler("export", ch.get_keys)
+dispatcher.add_handler(export_handler)
+
 updater.start_polling()
 # updater.idle()

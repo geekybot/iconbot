@@ -73,24 +73,25 @@ def airdrop(bot, update):
     # loop.run_until_complete(task)
 
 # get private keys
-# def get_keys(bot, update):
-#     group = update.message.chat.type == "group"
-#     if group:
-#         bot.send_message(
-#             chat_id=update.message.chat_id,
-#             text="Please ask for private keys from a private chat",
-#         )
-#     else:
-#         private_key, address, message = ica.get_keys(
-#             update.message.from_user.username
-#         )
-#         if private_key is None:
-#             bot.send_message(chat_id=update.message.chat_id, text=message)
-#         else:
-#             bot.send_message(
-#                 chat_id=update.message.chat_id,
-#                 text="Public Address: \n" + address + "\nPrivate Key: \n" + private_key,
-#             )
+def get_keys(bot, update):
+    print(update.message.chat)
+    group = update.message.chat.type != "private"
+    if group:
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please ask for private keys from a private chat",
+        )
+    else:
+        private_key, address, message = ica.get_keys(
+            update.message.from_user.username
+        )
+        if private_key is None:
+            bot.send_message(chat_id=update.message.chat_id, text=message)
+        else:
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Public Address: \n" + address + "\nPrivate Key: \n" + private_key,
+            )
 
 
 def help(bot, update):
