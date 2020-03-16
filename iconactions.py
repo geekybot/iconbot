@@ -184,11 +184,11 @@ def airdrop(bot, update, amount, sender, token, user, loop):
         print("==================printing addresses======================")
         print(addresses)
         user_amount = int(amount / len(addresses))
-        print(user_amount)
-        print(type(user_amount))
+        print(user_amount/10**18)
+        # print(type(user_amount))
         message = "Airdrop\n"
         for x in addresses:
-            message = message + "\n"+ x["username"] + ": "+str(math.floor(user_amount* (10 ** -18)))+"\n"
+            message = message + "\n@"+ x["username"] + ": "+str(round(user_amount* (10 ** -18),3))
         print(message)
         bot.send_message(
             chat_id=update.message.chat_id,

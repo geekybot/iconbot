@@ -36,7 +36,7 @@ def airdrop(bot, update):
         return
     # print(addresses)
     try:
-        amount = int(args[1]) * (10 ** 18)
+        amount = int(float(args[1]) * (10 ** 18))
     except:
         bot.send_message(
             chat_id=update.message.chat_id, text="Amount should be a sane number!!!!!",
@@ -146,7 +146,8 @@ def tip(bot, update):
             ),
         )
     try:
-        amount = int(args[3]) * (10 ** 18)
+        amount = int(float(args[3]) * (10 ** 18))
+        print(amount)
     except:
         bot.send_message(
             chat_id=update.message.chat_id, text="Amount should be a sane number!!!!!",

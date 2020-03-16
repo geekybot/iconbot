@@ -2,13 +2,12 @@ from pymongo import MongoClient
 from telethon import TelegramClient, sync
 import asyncio
 import time
+from iconsdk.wallet.wallet import KeyWallet
 
 import config as cfg
 api_id = cfg.config["api_id"]
 api_hash = cfg.config["api_hash"]
 bot_token = cfg.config["bot_token"]
-# loop = asyncio.new_event_loop()
-
 
 client = MongoClient('localhost', 27017)
 db = client.icon_database
@@ -32,7 +31,7 @@ def list_account(user, group_name, loop):
     bot = TelegramClient(botid, api_id, api_hash, loop = loop).start(bot_token=bot_token)    
     # with bot:
     participants = bot.get_participants(group_username)
-    # print(participants)
+    print(participants)
     addresses = []
     participant1 = [p for p in participants if p.username != user]
     participant2 = [q for q in participant1 if q.username != 'pluttest_bot']
@@ -44,8 +43,16 @@ def list_account(user, group_name, loop):
             if res is not None:
                 temp['username'] = x.username
                 temp["address"] = res["address"]
-                # print(res)
-                # print(addresses)
+                addresses.append(temp)
+            else:
+                wallet = KeyWallet.create()
+                pub_k = wallet.get_address()
+                priv_k = wallet.get_private_key()
+                account = {"telegramUserId": x.username, "privateKey": priv_k, "address": pub_k}
+                print(account)
+                collection.insert_one(account)
+                temp['username'] = x.username
+                temp["address"] = pub_k
                 addresses.append(temp)
     return addresses
 
