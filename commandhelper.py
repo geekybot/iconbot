@@ -127,12 +127,12 @@ def tip(bot, update):
     args = message.split(" ")
     sender = md.find_one({"telegramUserId": user})
     try:
-        if update.message.reply_to_message.from.is_bot:
+        if update.message.reply_to_message["from"]["is_bot"]:
             bot.send_message(
                 chat_id=update.message.chat_id,
                 text="You can't tip a bot!!",
             )
-        receiver_id = update.message.reply_to_message.from.username
+        receiver_id = update.message.reply_to_message["from"]["username"]
     except:
         receiver_id = args[1][1:]
     receiver = md.find_one({"telegramUserId": receiver_id})
