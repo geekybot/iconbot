@@ -126,10 +126,19 @@ def tip(bot, update):
     message = update.message.text
     args = message.split(" ")
     sender = md.find_one({"telegramUserId": user})
-    receiver = md.find_one({"telegramUserId": args[1][1:]})
+    try:
+        if update.message.reply_to_message.from.is_bot:
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text="You can't tip a bot!!",
+            )
+        receiver_id = update.message.reply_to_message.from.username
+    except:
+        receiver_id = args[1][1:]
+    receiver = md.find_one({"telegramUserId": receiver_id})
     amount = 0
     print("=======tip=======")
-    print(update.message)
+    print(receiver_id)
     if user is None:
         bot.send_message(
             chat_id=update.message.chat_id,
