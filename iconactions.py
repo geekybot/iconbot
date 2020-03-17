@@ -179,6 +179,10 @@ def airdrop(bot, update, amount, sender, token, user, loop):
     try:
         PRIVATE_KEY_FOR_TEST = bytes.fromhex(sender["privateKey"])
         sender_wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
+        print("=======chat group==========")
+        print(update.message.chat.username)
+        print("=======chat chat==========")
+        print(update.message.chat)
         # loop = asyncio.get_event_loop()
         addresses = md.list_account(user, update.message.chat.username, loop)
         print("==================printing addresses======================")
