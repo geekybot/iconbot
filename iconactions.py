@@ -182,7 +182,7 @@ def airdrop(bot, update, amount, sender, token, user, loop):
         if update.message.chat.username is None:
             bot.send_message(
             chat_id=update.message.chat_id,
-            text= "Please st a group username to airdrop"
+            text= "Please set a group username to airdrop"
         )
         
         # loop = asyncio.get_event_loop()
@@ -261,7 +261,3 @@ def airdrop(bot, update, amount, sender, token, user, loop):
     except:
         return None, None, "Error Submitting Transactions"
 
-# def test():
-#     print(md.list_account('Johnblockchain'))
-    
-# test()

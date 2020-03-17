@@ -128,6 +128,8 @@ def tip(bot, update):
     sender = md.find_one({"telegramUserId": user})
     receiver = md.find_one({"telegramUserId": args[1][1:]})
     amount = 0
+    print("=======tip=======")
+    print(update.message)
     if user is None:
         bot.send_message(
             chat_id=update.message.chat_id,
@@ -211,9 +213,57 @@ def price(bot, update):
     user = update.message.from_user.username
 
 
-# TODO
+
 def withdraw(bot, update):
     user = update.message.from_user.username
+    message = update.message.text
+    args = message.split(" ")
+    sender = md.find_one({"telegramUserId": user})
+    receiver = args[3]
+    amount = 0
+    if user is None:
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please set a telegram username in your profile settings!!",
+        )
+    elif sender is None:
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please create an account to start tipping people",
+        )
+    try:
+        amount = int(float(args[1]) * (10 ** 18))
+        print(amount)
+    except:
+        bot.send_message(
+            chat_id=update.message.chat_id, text="Amount should be a sane number!!!!!",
+        )
+    else:
+        if args[2].lower() == "icx":
+            tx_hash, message = ica.tip_icx(amount, sender, receiver)
+            if tx_hash is None:
+                bot.send_message(
+                    chat_id=update.message.chat_id, text=message,
+                )
+            else:
+                bot.send_message(
+                    chat_id=update.message.chat_id, text=message,
+                )
+        elif args[2].lower() == "irc2":
+            tx_hash, message = ica.tip_irc(amount, sender, receiver)
+            if tx_hash is None:
+                bot.send_message(
+                    chat_id=update.message.chat_id, text=message,
+                )
+            else:
+                bot.send_message(
+                    chat_id=update.message.chat_id, text=message,
+                )
+        else:
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Please follow The format to withdraw\nICX: /withdraw <value> ICX <address>\nIRC2: /withdraw <value> ICX <address>",
+            )
 
 
 # Dummy

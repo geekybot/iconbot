@@ -44,5 +44,8 @@ dispatcher.add_handler(airdrop_handler)
 export_handler = CommandHandler("export", ch.get_keys)
 dispatcher.add_handler(export_handler)
 
+withdraw_handler = CommandHandler("withdraw", ch.withdraw)
+dispatcher.add_handler(withdraw_handler)
+
 updater.start_polling()
 # updater.idle()
