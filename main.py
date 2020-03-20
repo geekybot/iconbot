@@ -24,7 +24,7 @@ def main():
     commands_handler = CommandHandler("commands", ch.commands)
     dispatcher.add_handler(commands_handler)
 
-    hi_handler = CommandHandler("hi", ch.hi)
+    hi_handler = CommandHandler("wallet", ch.wallet)
     dispatcher.add_handler(hi_handler)
 
     start_handler = CommandHandler("start", ch.start)

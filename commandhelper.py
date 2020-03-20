@@ -3,10 +3,11 @@ import iconactions as ica
 from telethon.sync import TelegramClient
 import asyncio
 from telegram.ext.dispatcher import run_async
-from telegram import  InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import  InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 import threading
 import json
-
+import callbacks as cb
+import views
 
 def commands(update, context):
     user = update.message.from_user.username
@@ -75,10 +76,14 @@ def get_keys(update, context):
 
 
 def help(update, context):
-    print(update)
+    keyboard = [[InlineKeyboardButton("Tipping", callback_data='tipping'),
+                 InlineKeyboardButton("Airdrop", callback_data='airdrop')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    # query.edit_message_text(text=views.HELP_VIEW, reply_markup = reply_markup)
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text="The following commands are at your disposal: /start , /hi , /commands , /tip, /balance",
+        text=cb.help_callback(),
+        reply_markup = reply_markup
     )
 
 
@@ -276,37 +281,95 @@ def withdraw(update, context):
 
 
 # Dummy
-def hi(update, context):
+def wallet(update, context):
     user = update.message.from_user.username
+    keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
+                 InlineKeyboardButton("Balance", callback_data='balance'),
+                 InlineKeyboardButton("Private Key", callback_data='private_key')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text="Hello @{0}, how are you doing today?".format(user),
+        text="Wallet Information",
+        reply_markup = reply_markup
     )
 
 
 
 # start command to create a wallet and map to user name
-def start(update, context):
-    
-    
-    keyboard = [[InlineKeyboardButton("Help", callback_data='/help')],
-                 [InlineKeyboardButton("Wallet", callback_data='/hi')],
-                [InlineKeyboardButton("Apps", callback_data='3')]]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    # update.callback_query.edit_message_text(text="Test", reply_markup=reply_markup)
-
+def start(update, context):  
+    keyboard = [[KeyboardButton("/help")],
+                 [KeyboardButton("/wallet")],
+                [KeyboardButton("/price")],
+                 [KeyboardButton("/apps")]]
+    reply_markup = ReplyKeyboardMarkup(keyboard)
     update.message.reply_text('Welcome to Pluttest, a telegram tipper Bot for Icon Blockchain:',
                                reply_markup=reply_markup)
    
-   
 
+    
 def button(update, context):
     query = update.callback_query
-    print(query.data)
-    # query.edit_message_text(text="")
-    help(update, context)
-   
+    print(update)
+    if query.data == 'help':
+        keyboard = [[InlineKeyboardButton("Tipping", callback_data='tipping'),
+                 InlineKeyboardButton("Airdrop", callback_data='airdrop')]]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text=views.HELP_VIEW, reply_markup = reply_markup)
+        
+    elif query.data == 'wallet':
+        keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
+                 InlineKeyboardButton("Balance", callback_data='balance'),
+                 InlineKeyboardButton("Private Key", callback_data='private_key')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text="""
+                                This is a icon blockchain wallet 
+                                You can use the following commands
+                                /test1 - to do some stuff
+                                /test2 - to do some other stuffs
+                                """, reply_markup = reply_markup)
+    elif query.data == 'balance':
+        print("====looking for update=====")
+        print(query.message)
+        keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
+                 InlineKeyboardButton("Balance", callback_data='balance'),
+                 InlineKeyboardButton("Private Key", callback_data='private_key')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text="Fetching Your balance\nThis may take some time", reply_markup = reply_markup)
+        query.edit_message_text(text=cb.balance_callback(query.message.chat.username), reply_markup = reply_markup)
+        
+    elif query.data == 'address':
+        keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
+                 InlineKeyboardButton("Balance", callback_data='balance'),
+                 InlineKeyboardButton("Private Key", callback_data='private_key')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text=cb.address_callback(query.message.chat.username), reply_markup = reply_markup)
+        
+    elif query.data == 'private_key':
+        print(update)
+        keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
+                 InlineKeyboardButton("Balance", callback_data='balance'),
+                 InlineKeyboardButton("Private Key", callback_data='private_key')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text=cb.pk_callback(query.message.chat.username), reply_markup = reply_markup)
+        
+    elif query.data == 'price':
+        query.edit_message_text(text=cb.price_callback())
+        
+    elif query.data == 'apps':
+        query.edit_message_text(text=cb.apps_callback())
+        
+    elif query.data == 'tipping':
+        keyboard = [[InlineKeyboardButton("Tipping", callback_data='tipping'),
+                 InlineKeyboardButton("Airdrop", callback_data='airdrop')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text=views.TIPS_VIEW, reply_markup = reply_markup)
+        
+    elif query.data == 'airdrop':
+        keyboard = [[InlineKeyboardButton("Tipping", callback_data='tipping'),
+                 InlineKeyboardButton("Airdrop", callback_data='airdrop')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text=views.AIRDROP_VIEW, reply_markup = reply_markup)
 # user = update.message.from_user.username
 # tel_user = md.find_one({"telegramUserId": user})
 # if tel_user is None:
