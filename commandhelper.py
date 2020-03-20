@@ -316,6 +316,7 @@ def button(update, context):
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(text=views.HELP_VIEW, reply_markup = reply_markup)
+        context.bot.answer_callback_query(query.id)
         
     elif query.data == 'wallet':
         keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
@@ -328,6 +329,7 @@ def button(update, context):
                                 /test1 - to do some stuff
                                 /test2 - to do some other stuffs
                                 """, reply_markup = reply_markup)
+        context.bot.answer_callback_query(query.id)
     elif query.data == 'balance':
         print("====looking for update=====")
         print(query.message)
@@ -337,6 +339,7 @@ def button(update, context):
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(text="Fetching Your balance\nThis may take some time", reply_markup = reply_markup)
         query.edit_message_text(text=cb.balance_callback(query.message.chat.username), reply_markup = reply_markup)
+        context.bot.answer_callback_query(query.id)
         
     elif query.data == 'address':
         keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
@@ -344,6 +347,7 @@ def button(update, context):
                  InlineKeyboardButton("Private Key", callback_data='private_key')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(text=cb.address_callback(query.message.chat.username), reply_markup = reply_markup)
+        context.bot.answer_callback_query(query.id)
         
     elif query.data == 'private_key':
         print(update)
@@ -352,24 +356,29 @@ def button(update, context):
                  InlineKeyboardButton("Private Key", callback_data='private_key')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(text=cb.pk_callback(query.message.chat.username), reply_markup = reply_markup)
+        context.bot.answer_callback_query(query.id)
         
     elif query.data == 'price':
         query.edit_message_text(text=cb.price_callback())
+        context.bot.answer_callback_query(query.id)
         
     elif query.data == 'apps':
         query.edit_message_text(text=cb.apps_callback())
+        context.bot.answer_callback_query(query.id)
         
     elif query.data == 'tipping':
         keyboard = [[InlineKeyboardButton("Tipping", callback_data='tipping'),
                  InlineKeyboardButton("Airdrop", callback_data='airdrop')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(text=views.TIPS_VIEW, reply_markup = reply_markup)
+        context.bot.answer_callback_query(query.id)
         
     elif query.data == 'airdrop':
         keyboard = [[InlineKeyboardButton("Tipping", callback_data='tipping'),
                  InlineKeyboardButton("Airdrop", callback_data='airdrop')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(text=views.AIRDROP_VIEW, reply_markup = reply_markup)
+        context.bot.answer_callback_query(query.id)
 # user = update.message.from_user.username
 # tel_user = md.find_one({"telegramUserId": user})
 # if tel_user is None:
