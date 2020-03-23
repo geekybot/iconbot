@@ -3,7 +3,7 @@ import iconactions as ica
 from telethon.sync import TelegramClient
 import asyncio
 from telegram.ext.dispatcher import run_async
-from telegram import  InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
+from telegram import  InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, ParseMode
 import threading
 import json
 import callbacks as cb
@@ -126,8 +126,8 @@ def tip(update, context):
         amount_input = args[1]
     except:
         receiver_id = args[1][1:]
-        token = args[2]
-        amount_input = args[3]
+        amount_input = args[2]
+        token = args[3]
     receiver = md.find_one({"telegramUserId": receiver_id})
     amount = 0
     print("=======tip=======")
@@ -161,6 +161,8 @@ def tip(update, context):
         )
         return
     else:
+        success_message = '{} tipped {} {} to {}, check '.format(user, amount_input, token, receiver_id )
+        print(success_message)
         if token.lower() == "icx":
             tx_hash, message = ica.tip_icx(amount, sender, receiver["address"])
             if tx_hash is None:
@@ -170,9 +172,25 @@ def tip(update, context):
                 return
             else:
                 context.bot.send_message(
+                    chat_id=update.message.chat_id, text='{} <a href="https://bicon.tracker.solidwallet.io/transaction/{}">Here</a>'.format(success_message, tx_hash),
+                    parse_mode=ParseMode.HTML
+                )
+                return
+        elif token.lower() == "usd":
+            price = float(str(ica.icx_usd())[:5])
+            amount = int(amount/price)
+            tx_hash, message = ica.tip_icx(amount, sender, receiver["address"])
+            if tx_hash is None:
+                context.bot.send_message(
                     chat_id=update.message.chat_id, text=message,
                 )
                 return
+            else:
+                context.bot.send_message(
+                    chat_id=update.message.chat_id, text='{} <a href="https://bicon.tracker.solidwallet.io/transaction/{}">Here</a>'.format(success_message, tx_hash),
+                    parse_mode=ParseMode.HTML
+                )
+            return
         elif token.lower() == "irc2":
             tx_hash, message = ica.tip_irc(amount, sender, receiver["address"])
             if tx_hash is None:
@@ -182,7 +200,8 @@ def tip(update, context):
                 return
             else:
                 context.bot.send_message(
-                    chat_id=update.message.chat_id, text=message,
+                    chat_id=update.message.chat_id, text='{} <a href="https://bicon.tracker.solidwallet.io/transaction/{}">Here</a>'.format(success_message, tx_hash),
+                    parse_mode=ParseMode.HTML
                 )
                 return
         else:
@@ -225,7 +244,10 @@ def balance(update, context):
 # TODO
 def price(update, context):
     user = update.message.from_user.username
-
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=cb.price_callback(),
+    )
 
 
 def withdraw(update, context):

@@ -20,7 +20,19 @@ import asyncio
 icon_service = IconService(HTTPProvider("https://bicon.net.solidwallet.io/api/v3"))
 # icon_irc2_address = "cx3f4c246971a87a7dc456f3e772fbbde52ec18de2"
 icon_irc2_address = "cxe9f4d7d376811bf5d773789134e6a862009bd39c"
+icx_usd_oracle_address = "cxe136880d495193de408685d9703f753758ebb22d"
+owener_wallet_address = "hxb8bda4c29d7397a3ce623ec943b9a499151e9dd6"
 
+# ICX/USD price
+def icx_usd():
+    call = (
+        CallBuilder()
+        .from_(owener_wallet_address)
+        .to(icx_usd_oracle_address)
+        .method("value")
+        .build()
+    )
+    return (10**18)/int(icon_service.call(call), 0)
 
 # Create Wallet for new users
 def create_wallet(user_id):

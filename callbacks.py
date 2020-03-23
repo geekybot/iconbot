@@ -14,9 +14,10 @@ def wallet_callback():
     Wallet Information
     '''
 def price_callback():
+    value = str(ica.icx_usd())[:5]
     return '''
-    Price Information
-    '''
+    USD/ICX = {}
+    '''.format(value)
 def apps_callback():
     return '''xyz
     Coming Soon!!!
