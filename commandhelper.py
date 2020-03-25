@@ -318,12 +318,24 @@ def wallet(update, context):
 
 
 # start command to create a wallet and map to user name
-def start(update, context):  
+def start(update, context):
+    print(update)
+    user = update.message.from_user.username
+    tel_user = md.find_one({"telegramUserId": user})
     keyboard = [[KeyboardButton("/help")],
                  [KeyboardButton("/wallet")],
                 [KeyboardButton("/price")],
                  [KeyboardButton("/apps")]]
     reply_markup = ReplyKeyboardMarkup(keyboard)
+    if tel_user is None:
+        pub_k = ica.create_wallet(user)
+        # print(response)
+        # context.bot.send_message(
+        #     chat_id=update.message.chat_id,
+        #     text="Hello @{0}, how are you doing today?".format(user)
+        #     + "\nWe have set up you wallet, Your address is "
+        #     + pub_k,
+        # )
     update.message.reply_text('Welcome to Pluttest, a telegram tipper Bot for Icon Blockchain:',
                                reply_markup=reply_markup)
    
@@ -364,6 +376,7 @@ def button(update, context):
         context.bot.answer_callback_query(query.id)
         
     elif query.data == 'address':
+        # update.
         keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
                  InlineKeyboardButton("Balance", callback_data='balance'),
                  InlineKeyboardButton("Private Key", callback_data='private_key')]]
@@ -401,19 +414,4 @@ def button(update, context):
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(text=views.AIRDROP_VIEW, reply_markup = reply_markup)
         context.bot.answer_callback_query(query.id)
-# user = update.message.from_user.username
-# tel_user = md.find_one({"telegramUserId": user})
-# if tel_user is None:
-#     pub_k = ica.create_wallet(user)
-#     # print(response)
-#     context.bot.send_message(
-#         chat_id=update.message.chat_id,
-#         text="Hello @{0}, how are you doing today?".format(user)
-#         + "\nWe have set up you wallet, Your address is "
-#         + pub_k,
-#     )
-# else:
-#     context.bot.send_message(
-#         chat_id=update.message.chat_id,
-#         text="Hello @{0}, how are you doing today?".format(user),
-#     )
+
