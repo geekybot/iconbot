@@ -37,7 +37,7 @@ def address_callback(user_name):
     return '''
     Address: {}
     Receive Address: {}
-    '''.format(owner["address"], owner["address"])
+    '''.format(owner["address"], owner["recAddress"])
     
 def pk_callback(user_name):
     owner = md.find_one({"telegramUserId": user_name})

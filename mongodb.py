@@ -23,7 +23,21 @@ def insert_one(new_obj):
     print(result)
     return result
 
+def change_rec_address(user_id, address):
+    result = collection.find_one_and_update({"telegramUserId": user_id}, { "$set": { "recAddress": address } })
+    return result
 
+def import_pri_key(user_id, private_key):
+    PRIVATE_KEY_FOR_TEST = bytes.fromhex(private_key)
+    wallet = KeyWallet.load(PRIVATE_KEY_FOR_TEST)
+    result = collection.find_one_and_update({"telegramUserId": user_id}, { "$set": { "privateKey": private_key, "address": wallet.get_address() } })
+    return result
+
+def reset_wallet(user_id):
+    obj = collection.find_one({"telegramUserId": user_id})
+    address = obj["address"]
+    result = collection.find_one_and_update({"telegramUserId": user_id}, { "$set": { "recAddress": address } })
+    return result
 def list_account(user, group_name, loop):
     group_username = group_name
     ms = time.time()*1000.0
@@ -42,13 +56,13 @@ def list_account(user, group_name, loop):
             res = find_one({'telegramUserId': x.username})
             if res is not None:
                 temp['username'] = x.username
-                temp["address"] = res["address"]
+                temp["address"] = res["recAddress"]
                 addresses.append(temp)
             else:
                 wallet = KeyWallet.create()
                 pub_k = wallet.get_address()
                 priv_k = wallet.get_private_key()
-                account = {"telegramUserId": x.username, "privateKey": priv_k, "address": pub_k}
+                account = {"telegramUserId": x.username, "privateKey": priv_k, "address": pub_k, "recAddress": pub_k}
                 print(account)
                 collection.insert_one(account)
                 temp['username'] = x.username

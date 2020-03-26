@@ -53,6 +53,15 @@ def main():
 
     withdraw_handler = CommandHandler("withdraw", ch.withdraw)
     dispatcher.add_handler(withdraw_handler)
+    
+    change_handler = CommandHandler("change", ch.change_receiving_address)
+    dispatcher.add_handler(change_handler)
+    
+    reset_handler = CommandHandler("reset", ch.reset_wallet)
+    dispatcher.add_handler(reset_handler)
+    
+    import_priv_handler = CommandHandler("import", ch.import_private_key)
+    dispatcher.add_handler(import_priv_handler)
 
     updater.dispatcher.add_error_handler(error)
     updater.dispatcher.add_handler(CallbackQueryHandler(ch.button))

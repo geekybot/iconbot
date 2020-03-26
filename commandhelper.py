@@ -17,6 +17,7 @@ def commands(update, context):
         + "\n \n Parameters: \n <user> = target user to tip \n <token type> = icx or irc2 \n <amount> = amount of token to utilise  \n \n Tipping format: \n /tip <user> <toke type> <amount> ",
     )
 
+
 # @run_async
 def airdrop(update, context):
     user = update.message.from_user.username
@@ -54,6 +55,8 @@ def airdrop(update, context):
 
 # get private keys
 def get_keys(update, context):
+    if update.message.chat.type != "private":
+        return
     print(update.message.chat)
     group = update.message.chat.type != "private"
     if group:
@@ -89,6 +92,8 @@ def help(update, context):
 
 # TODO: deposit icon
 def deposit(update, context):
+    if update.message.chat.type != "private":
+        return
     group = update.message.chat.type == "group"
     if group:
         context.bot.send_message(
@@ -164,7 +169,7 @@ def tip(update, context):
         success_message = '{} tipped {} {} to {}, check '.format(user, amount_input, token, receiver_id )
         print(success_message)
         if token.lower() == "icx":
-            tx_hash, message = ica.tip_icx(amount, sender, receiver["address"])
+            tx_hash, message = ica.tip_icx(amount, sender, receiver["recAddress"])
             if tx_hash is None:
                 context.bot.send_message(
                     chat_id=update.message.chat_id, text=message,
@@ -179,7 +184,7 @@ def tip(update, context):
         elif token.lower() == "usd":
             price = float(str(ica.icx_usd())[:5])
             amount = int(amount/price)
-            tx_hash, message = ica.tip_icx(amount, sender, receiver["address"])
+            tx_hash, message = ica.tip_icx(amount, sender, receiver["recAddress"])
             if tx_hash is None:
                 context.bot.send_message(
                     chat_id=update.message.chat_id, text=message,
@@ -192,7 +197,7 @@ def tip(update, context):
                 )
             return
         elif token.lower() == "irc2":
-            tx_hash, message = ica.tip_irc(amount, sender, receiver["address"])
+            tx_hash, message = ica.tip_irc(amount, sender, receiver["recAddress"])
             if tx_hash is None:
                 context.bot.send_message(
                     chat_id=update.message.chat_id, text=message,
@@ -213,6 +218,8 @@ def tip(update, context):
 
 
 def balance(update, context):
+    if update.message.chat.type != "private":
+        return
     user = update.message.from_user.username
     if user is None:
         context.bot.send_message(
@@ -243,6 +250,8 @@ def balance(update, context):
 
 # TODO
 def price(update, context):
+    if update.message.chat.type != "private":
+        return
     user = update.message.from_user.username
     context.bot.send_message(
         chat_id=update.message.chat_id,
@@ -251,6 +260,8 @@ def price(update, context):
 
 
 def withdraw(update, context):
+    if update.message.chat.type != "private":
+        return
     user = update.message.from_user.username
     message = update.message.text
     args = message.split(" ")
@@ -304,6 +315,8 @@ def withdraw(update, context):
 
 # Dummy
 def wallet(update, context):
+    if update.message.chat.type != "private":
+        return
     user = update.message.from_user.username
     keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
                  InlineKeyboardButton("Balance", callback_data='balance'),
@@ -319,6 +332,8 @@ def wallet(update, context):
 
 # start command to create a wallet and map to user name
 def start(update, context):
+    if update.message.chat.type != "private":
+        return
     print(update)
     user = update.message.from_user.username
     tel_user = md.find_one({"telegramUserId": user})
@@ -329,21 +344,51 @@ def start(update, context):
     reply_markup = ReplyKeyboardMarkup(keyboard)
     if tel_user is None:
         pub_k = ica.create_wallet(user)
-        # print(response)
-        # context.bot.send_message(
-        #     chat_id=update.message.chat_id,
-        #     text="Hello @{0}, how are you doing today?".format(user)
-        #     + "\nWe have set up you wallet, Your address is "
-        #     + pub_k,
-        # )
     update.message.reply_text('Welcome to Pluttest, a telegram tipper Bot for Icon Blockchain:',
                                reply_markup=reply_markup)
    
-
+# import new private key to delete created private key
+def import_private_key(update, context):
+    if update.message.chat.type != "private":
+        return
+    message = update.message.text
+    args = message.split(" ")
+    
+    cb_dat = 'confirmpriv'
+    print(type(cb_dat))
+    # {'action':'confirm_priv', 'username': update.message.from_user.username, 'prik': args[1]}
+    keyboard = [[InlineKeyboardButton("Confirm", callback_data= cb_dat),
+                 InlineKeyboardButton("Cancel", callback_data='cancel_priv')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    # result = md.import_pri_key(update.message.from_user.username, args[1])
+    context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text="This wallet might have balance, are you sure you want to continue?\n{}".format(args[1]),
+                reply_markup = reply_markup
+            )
+# change receiving key 
+def change_receiving_address(update, context):
+    if update.message.chat.type != "private":
+        return
+    message = update.message.text
+    args = message.split(" ")
+    result = md.change_rec_address(update.message.from_user.username, args[1])
+    context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Receiving address is changed to {}".format(args[1]),
+            )
+# reset wallet to change sending and receiving address as same
+def reset_wallet(update, context):
+    if update.message.chat.type != "private":
+        return
+    result = md.reset_wallet(update.message.from_user.username)
+    context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Wallet reset is completed",
+            )
     
 def button(update, context):
     query = update.callback_query
-    print(update)
     if query.data == 'help':
         keyboard = [[InlineKeyboardButton("Tipping", callback_data='tipping'),
                  InlineKeyboardButton("Airdrop", callback_data='airdrop')]]
@@ -415,3 +460,12 @@ def button(update, context):
         query.edit_message_text(text=views.AIRDROP_VIEW, reply_markup = reply_markup)
         context.bot.answer_callback_query(query.id)
 
+    elif query.data == "confirmpriv":
+        result = md.import_pri_key(query.from_user.username, query.message.text[-64:])
+        query.edit_message_text(text="Success")
+        context.bot.answer_callback_query(query.id)
+    
+    elif query.data == "cancel_priv":
+        query.edit_message_text(text="Canceled")
+        context.bot.answer_callback_query(query.id)
+        
