@@ -21,6 +21,12 @@ def commands(update, context):
 # @run_async
 def airdrop(update, context):
     user = update.message.from_user.username
+    if user is None:
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please set a telegram username in your profile settings!",
+        )
+        return
     message = update.message.text
     args = message.split(" ")
     print(args)
@@ -55,6 +61,7 @@ def airdrop(update, context):
 
 # get private keys
 def get_keys(update, context):
+    
     if update.message.chat.type != "private":
         return
     print(update.message.chat)
@@ -102,6 +109,12 @@ def deposit(update, context):
         )
         return
     else:
+        if user is None:
+            context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Please set a telegram username in your profile settings!",
+            )
+            return
         private_key, address, message = ica.get_keys(update.message.from_user.username)
         if private_key is None:
             context.bot.send_message(chat_id=update.message.chat_id, text=message)
@@ -114,6 +127,12 @@ def deposit(update, context):
 
 def tip(update, context):
     user = update.message.from_user.username
+    if user is None:
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please set a telegram username in your profile settings!",
+        )
+        return
     message = update.message.text
     args = message.split(" ")
     sender = md.find_one({"telegramUserId": user})
@@ -253,6 +272,12 @@ def price(update, context):
     if update.message.chat.type != "private":
         return
     user = update.message.from_user.username
+    if user is None:
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please set a telegram username in your profile settings!",
+        )
+        return
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text=cb.price_callback(),
@@ -263,6 +288,12 @@ def withdraw(update, context):
     if update.message.chat.type != "private":
         return
     user = update.message.from_user.username
+    if user is None:
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please set a telegram username in your profile settings!",
+        )
+        return
     message = update.message.text
     args = message.split(" ")
     sender = md.find_one({"telegramUserId": user})
@@ -317,7 +348,13 @@ def withdraw(update, context):
 def wallet(update, context):
     if update.message.chat.type != "private":
         return
-    # user = update.message.from_user.username
+    user = update.message.from_user.username
+    if user is None:
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Please set a telegram username in your profile settings!",
+        )
+        return
     keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
                  InlineKeyboardButton("Balance", callback_data='balance'),
                  InlineKeyboardButton("Private Key", callback_data='private_key')]]
