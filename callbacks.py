@@ -12,6 +12,9 @@ def help_callback():
 def wallet_callback():
     return '''
     Wallet Information
+    /change { receiving address } : Change the receiving address
+    /reset : Reset receiving address as sender address
+    /import { private key }: to import a new wallet and set as sender wallet
     '''
 def price_callback():
     value = str(ica.icx_usd())[:5]

@@ -39,7 +39,7 @@ def create_wallet(user_id):
     wallet = KeyWallet.create()
     pub_k = wallet.get_address()
     priv_k = wallet.get_private_key()
-    account = {"telegramUserId": user_id, "privateKey": priv_k, "address": pub_k}
+    account = {"telegramUserId": user_id, "privateKey": priv_k, "address": pub_k, "recAddress": pub_k}
     response = md.insert_one(account)
     print("=================")
     print(response)
