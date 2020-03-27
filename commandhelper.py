@@ -317,7 +317,7 @@ def withdraw(update, context):
 def wallet(update, context):
     if update.message.chat.type != "private":
         return
-    user = update.message.from_user.username
+    # user = update.message.from_user.username
     keyboard = [[InlineKeyboardButton("Address", callback_data='address'),
                  InlineKeyboardButton("Balance", callback_data='balance'),
                  InlineKeyboardButton("Private Key", callback_data='private_key')]]
@@ -335,7 +335,14 @@ def start(update, context):
     if update.message.chat.type != "private":
         return
     print(update)
-    user = update.message.from_user.username
+    try:
+        user = update.message.from_user.username
+        if user is None:
+            update.message.reply_text('Please set an username first')
+            return
+    except:
+        update.message.reply_text('Please set an username first')   
+        return     
     tel_user = md.find_one({"telegramUserId": user})
     keyboard = [[KeyboardButton("/help")],
                  [KeyboardButton("/wallet")],

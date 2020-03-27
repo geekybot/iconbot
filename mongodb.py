@@ -53,6 +53,8 @@ def list_account(user, group_name, loop):
     if len(participant2):
         for x in participant2:
             temp = {}
+            if x.username is None:
+                continue
             res = find_one({'telegramUserId': x.username})
             if res is not None:
                 temp['username'] = x.username
